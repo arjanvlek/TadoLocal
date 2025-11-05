@@ -527,63 +527,11 @@ class TadoBridge:
     @staticmethod
     async def perform_pairing_with_controller(host: str, port: int = 80, hap_pin: str = "557-15-876", db_path: str = None):
         """
-        Perform HomeKit pairing using Controller.start_pairing() method.
+        Perform HomeKit pairing using perform_pairing() method.
         """
-        try:
-            logger.info(f"Starting controller-based pairing with {host}:{port} using PIN: {hap_pin}")
+        # Default db path if not provided
+        if not db_path:
+            db_path = str(Path.home() / ".tado-local.db")
 
-            # Default db path if not provided
-            if not db_path:
-                db_path = str(Path.home() / ".tado-local.db")
-
-            # Get or create persistent controller identity
-            controller_id, private_key, public_key = await TadoBridge.get_or_create_controller_identity(db_path)
-            logger.info(f"Using Controller ID: {controller_id}")
-
-            try:
-                # Create required dependencies for Controller
-                # Note: zeroconf is only needed for discovery, not for known IP pairing
-                # However, the Controller.start_pairing() method may require it temporarily
-
-                # Create AsyncZeroconf instance (needed for initial pairing only)
-                zeroconf_instance = AsyncZeroconf()
-
-                # Create SQLite-backed characteristic cache
-                char_cache = CharacteristicCacheSQLite(db_path)
-
-                # Create the main Controller (not IpController)
-                # This is only used for initial pairing - subsequent connections use IpController without zeroconf
-                controller = Controller(
-                    async_zeroconf_instance=zeroconf_instance,
-                    char_cache=char_cache
-                )
-
-                logger.debug(f"Created controller with proper dependencies")
-
-                # Start pairing using the controller's built-in method
-                logger.info(f"Starting pairing process...")
-
-                # This should use the controller's pairing method which returns an IpPairing
-                pairing = await controller.start_pairing(host, hap_pin)
-
-                logger.info(f"Pairing completed successfully!")
-
-                # Clean up zeroconf instance after pairing
-                await zeroconf_instance.async_close()
-
-                # Extract pairing data in the correct format
-                pairing_data = pairing.pairing_data
-
-                logger.info(f"PAIRING SUCCESS! Controller-based approach, Controller ID: {controller_id}")
-
-                return pairing_data
-
-            except Exception as e:
-                logger.error(f"Controller-based pairing failed: {e}")
-                traceback.print_exc()
-                raise
-
-        except Exception as e:
-            logger.error(f"Pairing failed with error: {e}")
-            traceback.print_exc()
-            raise
+        # Use the perform_pairing method which handles all the pairing logic
+        return await TadoBridge.perform_pairing(host, port, hap_pin, db_path)

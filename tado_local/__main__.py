@@ -206,7 +206,7 @@ async def run_server(args):
                     "uvicorn.access": {"handlers": ["access"], "level": "INFO", "propagate": False},
                 },
             }
-        
+
         # Start the FastAPI server
         config = uvicorn.Config(
             app,
@@ -323,7 +323,7 @@ API Endpoints:
                        help="Enable verbose logging (DEBUG level)")
     parser.add_argument("--daemon", action="store_true",
                        help="Run in daemon mode (structured logging for syslog, auto-enables --pid-file)")
-    parser.add_argument("--syslog", 
+    parser.add_argument("--syslog",
                        help="Send logs to syslog instead of stdout (e.g., /dev/log, localhost:514, or remote.server:514)")
     parser.add_argument("--pid-file",
                        help="Write process ID to specified file (useful for daemon mode)")
@@ -344,7 +344,7 @@ API Endpoints:
             host, port = syslog_address.rsplit(':', 1)
             syslog_address = (host, int(port))
         # else: Unix socket path (e.g., /dev/log)
-        
+
         try:
             syslog_handler = logging.handlers.SysLogHandler(
                 address=syslog_address,
@@ -353,14 +353,14 @@ API Endpoints:
             syslog_handler.setFormatter(logging.Formatter(
                 'tado-local[%(process)d]: %(levelname)s %(message)s'
             ))
-            
+
             root_logger = logging.getLogger()
             root_logger.setLevel(logging.INFO)
             root_logger.addHandler(syslog_handler)
-            
+
             # Silence console output in syslog mode
             logging.getLogger().handlers = [syslog_handler]
-            
+
             logger.info("Logging to syslog: %s", args.syslog)
         except Exception as e:
             # Fall back to console if syslog fails
