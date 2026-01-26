@@ -394,13 +394,13 @@ def register_routes(app: FastAPI, get_tado_api):
                 break
 
         if not is_thermostat:
-            raise HTTPException(status_code=400, detail=f"Device {id} is not a thermostat")
+            raise HTTPException(status_code=400, detail=f"Device {thermostat_id} is not a thermostat")
 
         # Get device info from cache
-        device_info = tado_api.state_manager.device_info_cache.get(id, {})
+        device_info = tado_api.state_manager.device_info_cache.get(thermostat_id, {})
 
         # Build standardized state
-        state = tado_api.state_manager.get_current_state(id)
+        state = tado_api.state_manager.get_current_state(thermostat_id)
         cur_temp_c = state.get('current_temperature')
         target_temp_c = state.get('target_temperature')
 
@@ -468,7 +468,8 @@ def register_routes(app: FastAPI, get_tado_api):
             leader_serial = zone_info['leader_serial']
             leader_type = zone_info['leader_type']
             is_circuit_driver = zone_info['is_circuit_driver']
-
+            tado_zone_id = zone_info['tado_zone_id']
+            
             # Get device count for this zone (quick loop through device cache)
             device_count = sum(1 for dev_info in tado_api.state_manager.device_info_cache.values()
                               if dev_info.get('zone_id') == zone_id)
@@ -550,6 +551,7 @@ def register_routes(app: FastAPI, get_tado_api):
                 'leader_device_id': leader_device_id,
                 'leader_serial': leader_serial,
                 'leader_type': leader_type,
+                'tado_zone_id': tado_zone_id,
                 'is_circuit_driver': bool(is_circuit_driver),
                 'order_id': order_id,
                 'device_count': device_count,
@@ -620,6 +622,7 @@ def register_routes(app: FastAPI, get_tado_api):
         leader_serial = zone_info['leader_serial']
         leader_type = zone_info['leader_type']
         is_circuit_driver = zone_info['is_circuit_driver']
+        tado_zone_id = zone_info['tado_zone_id']
 
         # Get device count for this zone (quick loop through device cache)
         device_count = sum(1 for dev_info in tado_api.state_manager.device_info_cache.values()
@@ -702,6 +705,7 @@ def register_routes(app: FastAPI, get_tado_api):
             'leader_device_id': leader_device_id,
             'leader_serial': leader_serial,
             'leader_type': leader_type,
+            'tado_zone_id': tado_zone_id,
             'is_circuit_driver': bool(is_circuit_driver),
             'order_id': order_id,
             'device_count': device_count,
@@ -989,6 +993,8 @@ def register_routes(app: FastAPI, get_tado_api):
                 'zone_id': device_info.get('zone_id'),
                 'zone_name': device_info.get('zone_name'),
                 'device_type': device_info.get('device_type'),
+                'model': device_info.get('model'),
+                'firmware_version': device_info.get('firmware_version'),
                 'is_zone_leader': device_info.get('is_zone_leader'),
                 'is_circuit_driver': device_info.get('is_circuit_driver'),
                 'state': {
@@ -1046,6 +1052,8 @@ def register_routes(app: FastAPI, get_tado_api):
             'zone_id': device_info.get('zone_id'),
             'zone_name': device_info.get('zone_name'),
             'device_type': device_info.get('device_type'),
+            'model': device_info.get('model'),
+            'firmware_version': device_info.get('firmware_version'),
             'is_zone_leader': device_info.get('is_zone_leader'),
             'is_circuit_driver': device_info.get('is_circuit_driver'),
             'state': {
