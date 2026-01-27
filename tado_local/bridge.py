@@ -401,7 +401,7 @@ class TadoBridge:
                     logger.error(f"   --bridge-ip {ip}")
                 raise RuntimeError("Multiple pairings available. Please specify --bridge-ip.")
             else:
-                logger.info(f"No existing pairings found.")
+                logger.info("No existing pairings found.")
 
         # If we have existing pairing data, test it first
         if pairing_data is not None:

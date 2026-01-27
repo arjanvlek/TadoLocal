@@ -278,7 +278,6 @@ class TadoCloudSync:
             
                 sensoDataPoints = zone_state.get('sensorDataPoints', {})
                 humidity = str(sensoDataPoints.get('humidity', {}).get('percentage'))
-                inside_temp = str(sensoDataPoints.get('insideTemperature', {}).get('celsius'))
                 
                 if humidity != "None":
                     logger.debug(f"Get all aids for zone: {zone_id}")

@@ -600,7 +600,7 @@ class DeviceStateManager:
         for row in cursor.fetchall():
             row = list(row)
             row[column_names.index('is_zone_leader')] = bool(row[column_names.index('is_zone_leader')])
-            row[column_names.index('is_circuit_driver')] = bool(row [column_names.index('is_circuit_driver')])
+            row[column_names.index('is_circuit_driver')] = bool(row[column_names.index('is_circuit_driver')])
             device_dict = dict(zip(column_names, row))
             devices.append(device_dict)
         conn.close()

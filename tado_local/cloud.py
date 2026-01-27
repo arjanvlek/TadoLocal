@@ -70,15 +70,13 @@ Benefits:
 import asyncio
 import logging
 import time
-from typing import Optional, Dict, Any, TYPE_CHECKING
+from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
 import sqlite3
 import json
 from .database import CLOUD_SCHEMA
 from .api import TadoLocalAPI
 from .__version__ import __version__
-if TYPE_CHECKING:
-    import aiohttp
 
 try:
     import aiohttp

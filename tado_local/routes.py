@@ -1464,7 +1464,8 @@ def register_routes(app: FastAPI, get_tado_api):
                                 event_type = event_obj.get('type', '')
                                 if event_type not in allowed_types:
                                     continue  # Skip this event
-                            except:
+                            except Exception as e:
+                                logger.debug(f"Parsing fails, send it anyway ({e})")
                                 pass  # If parsing fails, send it anyway
 
                         yield event_data

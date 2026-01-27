@@ -1,7 +1,3 @@
-import asyncio
-
-import importlib
-
 from tado_local import zeroconf_register
 
 
