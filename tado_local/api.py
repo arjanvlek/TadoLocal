@@ -105,7 +105,8 @@ class TadoLocalAPI:
                 try:
                     # Signal end of stream
                     await queue.put(None)
-                except:
+                except Exception as e:
+                    logger.info(f"Event queue might already be closed: {e}")
                     pass  # Queue might already be closed
             self.event_listeners.clear()
 
@@ -116,7 +117,8 @@ class TadoLocalAPI:
                 try:
                     # Signal end of stream
                     await queue.put(None)
-                except:
+                except Exception as e:
+                    logger.info(f"Zone queue might already be closed: {e}")
                     pass  # Queue might already be closed
             self.zone_event_listeners.clear()
 
@@ -501,7 +503,8 @@ class TadoLocalAPI:
             for listener in target_listeners:
                 try:
                     await listener.put(event_message)
-                except:
+                except Exception as e:
+                    logger.info(f"Failed to add msg to queue: Disconnect listener {e}")
                     disconnected_listeners.append(listener)
 
             # Remove disconnected listeners
@@ -764,7 +767,8 @@ class TadoLocalAPI:
                 for queue in self.event_listeners:
                     try:
                         await queue.put(event_data)
-                    except:
+                    except Exception as e:
+                        logger.info(f"Queue might be closed {e}")
                         pass  # Queue might be closed
 
                 logger.debug(f"Updated device state from event: aid={aid}, iid={iid}, value={value}")

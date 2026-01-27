@@ -61,14 +61,16 @@ async def run_server(args):
                 for queue in list(tado_api.event_listeners):
                     try:
                         queue.put_nowait(None)
-                    except:
+                    except Exception as e:
+                        logger.error(f"Unexpected error sending shutdown event queue signal: {e}")
                         pass
 
             if tado_api.zone_event_listeners:
                 for queue in list(tado_api.zone_event_listeners):
                     try:
                         queue.put_nowait(None)
-                    except:
+                    except Exception as e:
+                        logger.error(f"Unexpected error sending shutdown zone queue signal: {e}")
                         pass
 
         if server:
@@ -154,7 +156,7 @@ async def run_server(args):
                         else:
                             logger.warning(f"HTTP mDNS registration: {msg} (advertising daemon host)")
                     except Exception as e:
-                        logger.exception("HTTP mDNS async registration failed")
+                        logger.exception("HTTP mDNS async registration failed (%s) ", e)
 
                 # schedule background registration; do not await so startup remains fast
                 task = asyncio.create_task(_schedule_mdns())
@@ -177,7 +179,7 @@ async def run_server(args):
         else:
             logger.info("mDNS registration disabled by --no-mdns flag")
 
-        logger.info(f"*** Tado Local ready! ***")
+        logger.info( "*** Tado Local ready! ***")
         logger.info(f"Bridge IP: {bridge_ip}")
         logger.info(f"API Server: http://{bridge_ip}:{args.port}")
         logger.info(f"Documentation: http://{bridge_ip}:{args.port}/docs")
@@ -293,7 +295,8 @@ async def run_server(args):
                     for queue in tado_api.event_listeners[:]:
                         try:
                             await queue.put(None)
-                        except:
+                        except Exception as e:
+                            logger.error(f"Unexpected error sending closing signal event queue: {e}")
                             pass
 
                 if tado_api.zone_event_listeners:
@@ -301,7 +304,8 @@ async def run_server(args):
                     for queue in tado_api.zone_event_listeners[:]:
                         try:
                             await queue.put(None)
-                        except:
+                        except Exception:
+                            logger.error(f"Unexpected error sending closing signal zone queue: {e}")
                             pass
 
                 # Give clients a moment to receive the close signal

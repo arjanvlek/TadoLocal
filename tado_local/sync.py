@@ -280,7 +280,7 @@ class TadoCloudSync:
                 humidity = str(sensoDataPoints.get('humidity', {}).get('percentage'))
                 inside_temp = str(sensoDataPoints.get('insideTemperature', {}).get('celsius'))
                 
-                if humidity is not "None":
+                if humidity != "None":
                     logger.debug(f"Get all aids for zone: {zone_id}")
                     # Get all devices of this zone to generate update humidity
                     cursor.execute(f"SELECT aid FROM devices WHERE tado_zone_id = '{zone_id}'")
