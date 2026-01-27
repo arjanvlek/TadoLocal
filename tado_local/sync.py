@@ -124,6 +124,12 @@ class TadoCloudSync:
                 zone_name = zone['name']
                 zone_type = zone.get('type', 'HEATING')
 
+                # Hot water zones do not have devices to sync, they also link to the thermostat device in the same zone
+                # this ruins the device-zone mapping logic, so we skip them
+                if zone_type == 'HOT_WATER':
+                    logger.debug(f"Skipping hot water zone {zone_name} (Tado ID: {tado_zone_id})")
+                    continue
+
                 # Check if zone already exists
                 cursor.execute("""
                     SELECT zone_id FROM zones
@@ -287,10 +293,10 @@ class TadoCloudSync:
                     cursor.execute("""
                         UPDATE devices
                         SET battery_state = ?, firmware_version = ?,
-                            device_type = ?, tado_zone_id = ?,
+                            device_type = ?, tado_zone_id = ?, model = ?,
                             last_seen = CURRENT_TIMESTAMP
                         WHERE serial_number = ?
-                    """, (battery_state, firmware, device_type, tado_zone_id, serial))
+                    """, (battery_state, firmware, device_type, tado_zone_id, raw_device_type, serial))
                     updated_count += 1
                 else:
                     # Device not yet in database - will be added during zone sync
